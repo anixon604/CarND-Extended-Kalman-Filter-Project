@@ -1,5 +1,6 @@
 #include "FusionEKF.h"
 #include "tools.h"
+#include "math.h"
 #include "Eigen/Dense"
 #include <iostream>
 
@@ -32,10 +33,12 @@ FusionEKF::FusionEKF() {
         0, 0, 0.09;
 
   /**
-  TODO:
+  TODO: DONE
     * Finish initializing the FusionEKF.
     * Set the process and measurement noises
   */
+  noise_ax = 9;
+  noise_ay = 9;
 
 
 }
@@ -49,7 +52,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
 
   /*****************************************************************************
-   *  Initialization
+   *  Initialization - DONE
    ****************************************************************************/
   if (!is_initialized_) {
     /**
@@ -66,12 +69,32 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
+
+      Radar measurementpack - rho (range), phi (angle), rho-dot (range rate)
+
+      x = r*cos(theta)
+      y = r*sin(theta)
       */
+
+      float rho, phi, rho_dot;
+      rho = measurement_pack.raw_measurements_[0];
+      phi = measurement_pack.raw_measurements_[1];
+      rho_dot = measurement_pack.raw_measurements_[2];
+      ekf_.x_[0] = rho * cos(phi);
+      ekf_.x_[1] = rho * sin(phi);
+      ekf_.x_[2] = rho_dot * sin(phi);
+      ekf_.x_[3] = rho_dot * cos(phi);
+
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       /**
       Initialize state.
+      input vector is x, y
+      ekf_.x_ is x, y, vx, vy
       */
+      ekf_.x_[0] = measurement_pack.raw_measurements_[0];
+      ekf_.x_[1] = measurement_pack.raw_measurements_[1];
+
     }
 
     // done initializing, no need to predict or update
