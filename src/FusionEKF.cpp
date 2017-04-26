@@ -56,7 +56,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    ****************************************************************************/
   if (!is_initialized_) {
     /**
-    TODO:
+    TODO: DONE
       * Initialize the state ekf_.x_ with the first measurement.
       * Create the covariance matrix.
       * Remember: you'll need to convert radar from polar to cartesian coordinates.
@@ -97,6 +97,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
     }
 
+    previous_timestamp_ = measurement_pack.timestamp_; // grab time
+
     // done initializing, no need to predict or update
     is_initialized_ = true;
     return;
@@ -113,6 +115,15 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Update the process noise covariance matrix.
      * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
+
+  deltaTime = measurement_pack.timestamp_ - previous_timestamp_;
+  MatrixXd F = MatrixXd(4,4);
+  F << 1, 0, deltaTime, 0,
+        0, 1, 0, deltaTime,
+        0, 0, 1, 0,
+        0, 0, 0, 1;
+
+
 
   ekf_.Predict();
 
