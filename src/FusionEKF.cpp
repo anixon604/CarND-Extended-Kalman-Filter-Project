@@ -33,10 +33,13 @@ FusionEKF::FusionEKF() {
         0, 0, 0.09;
 
   /**
-  TODO: DONE
     * Finish initializing the FusionEKF.
     * Set the process and measurement noises
   */
+
+  // measurement matrix - laser
+  H_laser_ << 1, 0, 0, 0,
+            0, 1, 0, 0;
 
   // transition matrix
   ekf_.F_ = MatrixXd(4,4);
@@ -67,7 +70,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    ****************************************************************************/
   if (!is_initialized_) {
     /**
-    TODO: DONE
       * Initialize the state ekf_.x_ with the first measurement.
       * Create the covariance matrix.
       * Remember: you'll need to convert radar from polar to cartesian coordinates.
@@ -87,7 +89,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
-
       Radar measurementpack - rho (range), phi (angle), rho-dot (range rate)
 
       x = r*cos(theta)
@@ -127,7 +128,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    ****************************************************************************/
 
   /**
-   TODO:
      * Update the state transition matrix F according to the new elapsed time.
       - Time is measured in seconds.
      * Update the process noise covariance matrix.
@@ -164,11 +164,48 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates
+    Hj = CalculateJacobian(ekf_.x_);
+
+    ekf_.R_ = R_radar_;
+    ekf_.H_ = Hj_;
+    ekf_.UpdateEKF();
   } else {
     // Laser updates
+    ekf_.H_ = H_laser_;
+    ekf_.R_ = R_laser_;
+    ekf_.Update();
   }
 
   // print the output
   cout << "x_ = " << ekf_.x_ << endl;
   cout << "P_ = " << ekf_.P_ << endl;
+}
+
+// Calculate the Jacobian for the EKF update
+MatrixXd calculateJacobian(const VectorXd& x_state) {
+
+	MatrixXd Hj(3,4);
+	//recover state parameters
+	float px = x_state(0);
+	float py = x_state(1);
+	float vx = x_state(2);
+	float vy = x_state(3);
+
+	//pre-compute a set of terms to avoid repeated calculation
+	float c1 = px*px+py*py;
+	float c2 = sqrt(c1);
+	float c3 = (c1*c2);
+
+	//check division by zero
+	if(fabs(c1) < 0.0001){
+		cout << "CalculateJacobian () - Error - Division by Zero" << endl;
+		return Hj;
+	}
+
+	//compute the Jacobian matrix
+	Hj << (px/c2), (py/c2), 0, 0,
+		  -(py/c1), (px/c1), 0, 0,
+		  py*(vx*py - vy*px)/c3, px*(px*vy - py*vx)/c3, px/c2, py/c2;
+
+	return Hj;
 }
