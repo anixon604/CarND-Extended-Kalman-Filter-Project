@@ -157,14 +157,13 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    ****************************************************************************/
 
   /**
-   TODO:
      * Use the sensor type to perform the update step.
      * Update the state and covariance matrices.
    */
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates
-    Hj = CalculateJacobian(ekf_.x_);
+    Hj_ = CalculateJacobian(ekf_.x_);
 
     ekf_.R_ = R_radar_;
     ekf_.H_ = Hj_;
@@ -182,7 +181,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 }
 
 // Calculate the Jacobian for the EKF update
-MatrixXd calculateJacobian(const VectorXd& x_state) {
+MatrixXd CalculateJacobian(const VectorXd& x_state) {
 
 	MatrixXd Hj(3,4);
 	//recover state parameters
