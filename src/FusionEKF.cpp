@@ -43,9 +43,9 @@ FusionEKF::FusionEKF() {
 
   // transition matrix
   ekf_.F_ = MatrixXd(4,4);
-  ekf_.F_ << 1,0,0,0
-            0,1,0,0
-            0,0,1,0
+  ekf_.F_ << 1,0,0,0,
+            0,1,0,0,
+            0,0,1,0,
             0,0,0,1;
 
   // process covariance matrix
@@ -141,8 +141,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 	float dt_4 = dt_3 * deltaTime;
 
   // update state transition matrix
-  ekf_.F_[0,2] = deltaTime;
-  ekf_.F_[1,3] = deltaTime;
+  ekf_.F_(0,2) = deltaTime;
+  ekf_.F_(1,3) = deltaTime;
 
   // update process noise covariance matrix Q
   ekf_.Q_ <<  dt_4/4*noise_ax, 0, dt_3/2*noise_ax, 0,
@@ -167,12 +167,12 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
     ekf_.R_ = R_radar_;
     ekf_.H_ = Hj_;
-    ekf_.UpdateEKF();
+    ekf_.UpdateEKF(ekf_.x_);
   } else {
     // Laser updates
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_;
-    ekf_.Update();
+    ekf_.Update(ekf_.x_);
   }
 
   // print the output
