@@ -150,7 +150,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
        dt_3/2*noise_ax, 0, dt_2*noise_ax, 0,
        0, dt_3/2*noise_ay, 0, dt_2*noise_ay;
 
-  ekf_.Predict();
+  // avoid arithmetic errors by setting a lower bound on time interval
+  if ( deltaTime > 0.001 ) {
+       ekf_.Predict();
+  }
 
   /*****************************************************************************
    *  Update
