@@ -34,7 +34,7 @@ void KalmanFilter::Update(const VectorXd &z) {
   VectorXd z_pred = H_ * x_;
   VectorXd y = z - z_pred;
 
-  UpdateHelper(z, y);
+  UpdateHelper(y);
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
@@ -57,11 +57,11 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   VectorXd y = z - hx;
 
-  UpdateHelper(z, y);
+  UpdateHelper(y);
 }
 
 // shared between KF and EKF updates
-void KalmanFilter::UpdateHelper(VectorXd x_, const VectorXd &y) {
+void KalmanFilter::UpdateHelper(const VectorXd &y) {
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
   MatrixXd Si = S.inverse();
