@@ -49,9 +49,6 @@ private:
   float noise_ax;
   float noise_ay;
 
-  // to create jacobian matrix
-  Eigen::MatrixXd CalculateJacobian(const Eigen::VectorXd& x_state);
-
 };
 
 #endif /* FusionEKF_H_ */

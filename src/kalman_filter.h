@@ -65,7 +65,7 @@ public:
   void UpdateEKF(const Eigen::VectorXd &z);
 
   // shared code between Update and UpdateEKF
-  void UpdateHelper(const Eigen::VectorXd &y);
+  void UpdateHelper(Eigen::VectorXd x_, const Eigen::VectorXd &y);
 
 };
 

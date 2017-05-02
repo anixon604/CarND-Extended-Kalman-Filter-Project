@@ -34,7 +34,7 @@ void KalmanFilter::Update(const VectorXd &z) {
   VectorXd z_pred = H_ * x_;
   VectorXd y = z - z_pred;
 
-  UpdateHelper(y);
+  UpdateHelper(z, y);
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
@@ -42,10 +42,10 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     * update the state by using Extended Kalman Filter equations
   */
   float px, py, pvx, pvy, rho, phi, rho_dot;
-  px = x_[0];
-  py = x_[1];
-  pvx = x_[2];
-  pvy = x_[3];
+  px = z[0];
+  py = z[1];
+  pvx = z[2];
+  pvy = z[3];
 
   rho = sqrt((px*px)+(py*py));
   // atan2 returns a value between -pi and pi.
@@ -57,11 +57,11 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   VectorXd y = z - hx;
 
-  UpdateHelper(y);
+  UpdateHelper(z, y);
 }
 
 // shared between KF and EKF updates
-void KalmanFilter::UpdateHelper(const VectorXd &y) {
+void KalmanFilter::UpdateHelper(VectorXd x_, const VectorXd &y) {
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
   MatrixXd Si = S.inverse();
