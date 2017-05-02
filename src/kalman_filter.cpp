@@ -42,10 +42,10 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     * update the state by using Extended Kalman Filter equations
   */
   float px, py, pvx, pvy, rho, phi, rho_dot;
-  px = z[0];
-  py = z[1];
-  pvx = z[2];
-  pvy = z[3];
+  px = x_[0];
+  py = x_[1];
+  pvx = x_[2];
+  pvy = x_[3];
 
   rho = sqrt((px*px)+(py*py));
   // atan2 returns a value between -pi and pi.
